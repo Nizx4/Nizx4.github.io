@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dreamy Bedtime Stories</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Quicksand:wght@400;700&family=Baloo+2:wght@400;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        position: relative;
+    }
+    .header-content h1, .header-content .tagline {
+        margin-right: auto;
+    }
+    .search-container {
+        position: relative;
+        margin-left: 1.5rem;
+        margin-right: 2.5rem;
+        margin-top: 0.5rem;
+        min-width: 230px;
+        max-width: 320px;
+        width: 100%;
+    }
+    #search-bar {
+        width: 100%;
+        padding: 0.7rem 1.2rem;
+        border-radius: 25px;
+        border: 1px solid #d3d3d3;
+        font-size: 1rem;
+        font-family: 'Quicksand', sans-serif;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        transition: border 0.2s;
+    }
+    #search-bar:focus {
+        border: 1.5px solid #a8d8ea;
+    }
+    .suggestions-list {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 110%;
+        background: rgba(255, 251, 230, 0.99);
+        border-radius: 22px;
+        box-shadow: 0 8px 32px #b0e0f7cc, 0 2px 12px #f8c3cd55;
+        z-index: 50;
+        padding: 0.5rem 0.2rem 0.5rem 0.2rem;
+        margin-top: 0.3rem;
+        list-style: none;
+        max-height: 320px;
+        overflow-y: auto;
+        display: none;
+        border: 2.5px solid #b0e0f7;
+        font-family: 'Baloo 2', 'Quicksand', 'Comic Neue', 'Nunito', sans-serif;
+        font-size: 1.22rem;
+        outline: 3px solid #ffe6a7;
+        outline-offset: 2px;
+        filter: drop-shadow(0 0 12px #f8c3cd88);
+    }
+    .suggestions-list.active {
+        display: block;
+    }
+    .suggestions-list li {
+        padding: 1.2rem 1.6rem;
+        font-size: 1.18rem;
+        color: #7e7eea;
+        cursor: pointer;
+        border-radius: 16px;
+        transition: background 0.16s, color 0.16s, box-shadow 0.13s;
+        outline: none;
+        margin: 0.12rem 0.3rem;
+        box-shadow: 0 2px 8px #b0e0f733;
+        background: none;
+    }
+    .suggestions-list li:hover, .suggestions-list li:focus {
+        background: linear-gradient(90deg, #b0e0f7 60%, #f8c3cd 100%);
+        color: #fff;
+        box-shadow: 0 4px 16px #f8c3cd44;
+    }
+
+    @media (max-width: 700px) {
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .search-container {
+            margin: 1rem 0 0 0;
+            width: 100%;
+            max-width: 100%;
+        }
+    }
+
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            padding: 0 2rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .story-card {
+            background: var(--card-bg, #fff);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .story-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .story-cover {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 18px;
+            box-shadow: 0 2px 12px #b0e0f744;
+            display: block;
+            background: #fffbe6;
+            transition: transform 0.2s cubic-bezier(.45,.05,.55,.95);
+        }
+        @media (max-width: 600px) {
+            .story-cover {
+                height: 180px;
+            }
+        }
+        .story-title {
+            padding: 1.2rem;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #4a4a4a;
+            font-family: 'Comic Neue', cursive;
+            min-height: 60px;
+        }
+        /* Center last card if only one in last row */
+        .stories-grid .story-card.last {
+            grid-column: 2 / 3;
+        }
+        @media (max-width: 900px) {
+            .stories-grid { grid-template-columns: repeat(2, 1fr); }
+            .stories-grid .story-card.last { grid-column: 1 / -1; justify-self: center; }
+        }
+        @media (max-width: 600px) {
+            .stories-grid { grid-template-columns: 1fr; }
+            .stories-grid .story-card.last { grid-column: 1; }
+        }
+    .bubble-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.stories-grid {
+  position: relative;
+  z-index: 2;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  opacity: var(--bubble-opacity, 0.22);
+  background: var(--bubble-bg, radial-gradient(circle at 55% 40%, #fffbe6 70%, #b0e0f7 100%));
+  filter: blur(1.2px) drop-shadow(0 2px 14px #b0e0f755);
+  animation: var(--bubble-anim, bubble-drift1) var(--bubble-dur, 19s) ease-in-out infinite;
+  transition: opacity 0.3s;
+}
+@keyframes bubble-drift1 {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.17; }
+  12% { transform: translate(-7vw, -8vh) scale(1.08); }
+  30% { transform: translate(4vw, -18vh) scale(0.92); }
+  55% { transform: translate(-9vw, -33vh) scale(1.05); }
+  80% { opacity: 0.28; }
+  100% { transform: translate(-4vw, -44vh) scale(1); opacity: 0.07; }
+}
+@keyframes bubble-drift2 {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.19; }
+  25% { transform: translate(8vw, -12vh) scale(0.96); }
+  50% { transform: translate(-5vw, -27vh) scale(1.1); }
+  80% { opacity: 0.24; }
+  100% { transform: translate(7vw, -52vh) scale(1.04); opacity: 0.06; }
+}
+@keyframes bubble-drift3 {
+  0% { transform: translate(0, 0) scale(1); opacity: 0.18; }
+  20% { transform: translate(-4vw, -9vh) scale(1.07); }
+  40% { transform: translate(6vw, -20vh) scale(0.97); }
+  60% { transform: translate(-2vw, -31vh) scale(1.03); }
+  80% { opacity: 0.25; }
+  100% { transform: translate(3vw, -46vh) scale(1.01); opacity: 0.07; }
+}
+
+</style>
+</head>
+<body>
+<div class="bubble-bg">
+  <div class="bubble" style="width: 90px; height: 90px; left: 7vw; bottom: 4vh; --bubble-bg: radial-gradient(circle at 55% 40%, #f8f4e6 70%, #b0e0f7 100%); --bubble-opacity: 0.19; --bubble-anim: bubble-drift1; --bubble-dur: 46s; animation-delay: 0s;"></div>
+  <div class="bubble" style="width: 60px; height: 60px; left: 18vw; bottom: 11vh; --bubble-bg: radial-gradient(circle at 55% 40%, #e8f9fb 70%, #b0e0f7 100%); --bubble-opacity: 0.22; --bubble-anim: bubble-drift2; --bubble-dur: 38s; animation-delay: 3s;"></div>
+  <div class="bubble" style="width: 110px; height: 110px; left: 29vw; bottom: 7vh; --bubble-bg: radial-gradient(circle at 55% 40%, #fffbe6 65%, #e3d1f2 100%); --bubble-opacity: 0.17; --bubble-anim: bubble-drift3; --bubble-dur: 42s; animation-delay: 5s;"></div>
+  <div class="bubble" style="width: 75px; height: 75px; left: 44vw; bottom: 3vh; --bubble-bg: radial-gradient(circle at 55% 40%, #f8c3cd 60%, #b0e0f7 100%); --bubble-opacity: 0.26; --bubble-anim: bubble-drift2; --bubble-dur: 36s; animation-delay: 2s;"></div>
+  <div class="bubble" style="width: 65px; height: 65px; left: 59vw; bottom: 13vh; --bubble-bg: radial-gradient(circle at 55% 40%, #e3d1f2 70%, #b0e0f7 100%); --bubble-opacity: 0.23; --bubble-anim: bubble-drift1; --bubble-dur: 44s; animation-delay: 4s;"></div>
+  <div class="bubble" style="width: 95px; height: 95px; left: 73vw; bottom: 6vh; --bubble-bg: radial-gradient(circle at 55% 40%, #fffbe6 60%, #f8c3cd 100%); --bubble-opacity: 0.21; --bubble-anim: bubble-drift3; --bubble-dur: 50s; animation-delay: 7s;"></div>
+  <div class="bubble" style="width: 55px; height: 55px; left: 84vw; bottom: 16vh; --bubble-bg: radial-gradient(circle at 55% 40%, #e8f9fb 60%, #b0e0f7 100%); --bubble-opacity: 0.18; --bubble-anim: bubble-drift2; --bubble-dur: 32s; animation-delay: 6s;"></div>
+  <div class="bubble" style="width: 130px; height: 130px; left: 13vw; bottom: 38vh; --bubble-bg: radial-gradient(circle at 55% 40%, #fffbe6 70%, #e3d1f2 100%); --bubble-opacity: 0.24; --bubble-anim: bubble-drift3; --bubble-dur: 42s; animation-delay: 8s;"></div>
+  <div class="bubble" style="width: 70px; height: 70px; left: 53vw; bottom: 33vh; --bubble-bg: radial-gradient(circle at 55% 40%, #f8c3cd 60%, #fffbe6 100%); --bubble-opacity: 0.28; --bubble-anim: bubble-drift1; --bubble-dur: 34s; animation-delay: 1s;"></div>
+  <div class="bubble" style="width: 85px; height: 85px; left: 82vw; bottom: 47vh; --bubble-bg: radial-gradient(circle at 55% 40%, #e3d1f2 65%, #b0e0f7 100%); --bubble-opacity: 0.19; --bubble-anim: bubble-drift2; --bubble-dur: 40s; animation-delay: 10s;"></div>
+  <div class="bubble" style="width: 120px; height: 120px; left: 37vw; bottom: 62vh; --bubble-bg: radial-gradient(circle at 55% 40%, #fffbe6 70%, #b0e0f7 100%); --bubble-opacity: 0.18; --bubble-anim: bubble-drift3; --bubble-dur: 46s; animation-delay: 12s;"></div>
+  <div class="bubble" style="width: 80px; height: 80px; left: 68vw; bottom: 72vh; --bubble-bg: radial-gradient(circle at 55% 40%, #e8f9fb 60%, #e3d1f2 100%); --bubble-opacity: 0.23; --bubble-anim: bubble-drift1; --bubble-dur: 38s; animation-delay: 13s;"></div>
+</div>
+    <header>
+    <div class="header-content">
+        <h1>Dreamy Bedtime Stories</h1>
+        <div class="search-container">
+            <input type="text" id="search-bar" placeholder="Search stories..." autocomplete="off" />
+            <ul id="search-suggestions" class="suggestions-list"></ul>
+        </div>
+    </div>
+</header>
+    <main class="stories-grid">
+  <!-- Story 1 -->
+  <div class="story-box">
+    <a href="story1.html" class="story-link">
+      <img src="story1.png" alt="Story 1: The Sleepy Star" class="story-cover" />
+      <div class="story-title">Story 1: The Sleepy Star</div>
+    </a>
+  </div>
+  <!-- Story 2 -->
+  <div class="story-box">
+    <a href="story2.html" class="story-link">
+      <img src="story2.png" alt="Story 2: Benny the Blanket" class="story-cover" />
+      <div class="story-title">Story 2: Benny the Blanket</div>
+    </a>
+  </div>
+  <!-- Story 3 -->
+  <div class="story-box">
+    <a href="story3.html" class="story-link">
+      <img src="story3.png" alt="Story 3: The Cloud That Couldn't Rain" class="story-cover" />
+      <div class="story-title">Story 3: The Cloud That Couldn't Rain</div>
+    </a>
+  </div>
+  <!-- Story 4 -->
+  <div class="story-box">
+    <a href="story4.html" class="story-link">
+      <img src="story4.png" alt="Story 4: Milo the Moon Mouse" class="story-cover" />
+      <div class="story-title">Story 4: Milo the Moon Mouse</div>
+    </a>
+  </div>
+  <!-- Story 5 -->
+  <div class="story-box">
+    <a href="story5.html" class="story-link">
+      <img src="story5.png" alt="Story 5: Tilly the Turtle's Dream" class="story-cover" />
+      <div class="story-title">Story 5: Tilly the Turtle's Dream</div>
+    </a>
+  </div>
+  <!-- Story 6 -->
+  <div class="story-box">
+    <a href="story6.html" class="story-link">
+      <img src="story6.png" alt="Story 6: Nico and the Talking Tree" class="story-cover" />
+      <div class="story-title">Story 6: Nico and the Talking Tree</div>
+    </a>
+  </div>
+  <!-- Story 7 -->
+  <div class="story-box">
+    <a href="story7.html" class="story-link">
+      <img src="story7.png" alt="Story 7: The Pillow Who Snored" class="story-cover" />
+      <div class="story-title">Story 7: The Pillow Who Snored</div>
+    </a>
+  </div>
+  <!-- Story 8 -->
+  <div class="story-box">
+    <a href="story8.html" class="story-link">
+      <img src="story8.png" alt="Story 8: Zara the Zebra's Stripes" class="story-cover" />
+      <div class="story-title">Story 8: Zara the Zebra's Stripes</div>
+    </a>
+  </div>
+  <!-- Story 9 -->
+  <div class="story-box">
+    <a href="story9.html" class="story-link">
+      <img src="story9.png" alt="Story 9: Leo's Lost Yawn" class="story-cover" />
+      <div class="story-title">Story 9: Leo's Lost Yawn</div>
+    </a>
+  </div>
+  <!-- Story 10 -->
+  <div class="story-box">
+    <a href="story10.html" class="story-link">
+      <img src="story10.png" alt="Story 10: The Dream Delivery Bird" class="story-cover" />
+      <div class="story-title">Story 10: The Dream Delivery Bird</div>
+    </a>
+  </div>
+
+
+</main>
+    <footer>
+        <p> 2025 Dreamy Bedtime Stories | Sweet dreams for little ones</p>
+    </footer>
+    <!-- Cute mascot: Sleepy Owl SVG in bottom left corner -->
+    <svg id="mascot" viewBox="0 0 90 90" width="90" height="90" xmlns="http://www.w3.org/2000/svg">
+      <g>
+        <ellipse cx="45" cy="70" rx="25" ry="12" fill="#e5d1f2"/>
+        <ellipse cx="45" cy="50" rx="30" ry="32" fill="#fffbe6" stroke="#b0e0f7" stroke-width="2.5"/>
+        <ellipse cx="32" cy="50" rx="8" ry="10" fill="#fff"/>
+        <ellipse cx="58" cy="50" rx="8" ry="10" fill="#fff"/>
+        <ellipse cx="32" cy="53" rx="3.3" ry="4.2" fill="#b0e0f7"/>
+        <ellipse cx="58" cy="53" rx="3.3" ry="4.2" fill="#b0e0f7"/>
+        <ellipse cx="32" cy="54.5" rx="1.1" ry="1.5" fill="#fff"/>
+        <ellipse cx="58" cy="54.5" rx="1.1" ry="1.5" fill="#fff"/>
+        <ellipse cx="45" cy="62" rx="5" ry="2.3" fill="#f8c3cd"/>
+        <path d="M41 60 Q45 65 49 60" stroke="#f89cab" stroke-width="2" fill="none"/>
+        <ellipse cx="45" cy="45" rx="5" ry="3.5" fill="#f8c3cd"/>
+        <ellipse cx="28" cy="38" rx="5" ry="8" fill="#b0e0f7"/>
+        <ellipse cx="62" cy="38" rx="5" ry="8" fill="#b0e0f7"/>
+        <ellipse cx="25" cy="34" rx="4" ry="6" fill="#fffbe6"/>
+        <ellipse cx="65" cy="34" rx="4" ry="6" fill="#fffbe6"/>
+        <ellipse cx="45" cy="24" rx="12" ry="10" fill="#f8c3cd"/>
+        <ellipse cx="45" cy="26" rx="9" ry="7" fill="#fffbe6"/>
+        <ellipse cx="40" cy="23" rx="2" ry="2.2" fill="#f89cab"/>
+        <ellipse cx="50" cy="23" rx="2" ry="2.2" fill="#f89cab"/>
+        <ellipse cx="45" cy="18" rx="2.5" ry="2.5" fill="#f89cab"/>
+      </g>
+    </svg>
+    <div id="hearts-container"></div>
+<script>
+// --- Mascot heart animation logic ---
+const mascot = document.getElementById('mascot');
+const heartsContainer = document.getElementById('hearts-container');
+
+function randomBetween(a, b) {
+    return a + Math.random() * (b - a);
+}
+
+function createHeart() {
+    // SVG heart shape
+    const size = randomBetween(22, 36); // px
+    const duration = randomBetween(1.4, 2.1); // seconds
+    const leftOffset = randomBetween(-30, 30); // px
+    const opacity = randomBetween(0.7, 1);
+    const color = Math.random() > 0.5 ? '#f89cab' : '#f8c3cd';
+    const heart = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    heart.setAttribute('viewBox', '0 0 32 29');
+    heart.setAttribute('width', size);
+    heart.setAttribute('height', size);
+    heart.classList.add('heart');
+    heart.style.left = `calc(50% + ${leftOffset}px)`;
+    heart.style.opacity = opacity;
+    heart.style.animationDuration = duration + 's';
+    heart.innerHTML = `<path d="M23.6,2.6c-2.4,0-4.6,1.4-5.6,3.5C16,4,13.8,2.6,11.4,2.6C7.2,2.6,4,6,4,10.2c0,6.7,11.1,15.3,11.6,15.7 c0.3,0.2,0.7,0.2,1,0C26,25.5,28,16.9,28,10.2C28,6,24.8,2.6,23.6,2.6z" fill="${color}" fill-opacity="0.77"/>`;
+    heartsContainer.appendChild(heart);
+    setTimeout(() => {
+        heart.remove();
+    }, duration * 1000);
+}
+
+let wiggleTimeout;
+mascot.addEventListener('click', () => {
+    // Prevent accidental text selection
+    if (window.getSelection) {
+        const sel = window.getSelection();
+        if (sel && sel.removeAllRanges) sel.removeAllRanges();
+    } else if (document.selection) {
+        document.selection.empty();
+    }
+    createHeart();
+    mascot.classList.remove('wiggle'); // restart wiggle
+    void mascot.offsetWidth; // force reflow
+    mascot.classList.add('wiggle');
+    // Allow rapid clicking for more hearts
+});
+mascot.addEventListener('animationend', (e) => {
+    if (e.animationName === 'mascot-wiggle') {
+        mascot.classList.remove('wiggle');
+    }
+});
+
+// --- End mascot heart logic ---
+
+// Story titles and their corresponding pages
+const stories = [
+    { title: "Story 1: The Sleepy Star", page: "story1.html" },
+    { title: "Story 2: Benny the Blanket", page: "story2.html" },
+    { title: "Story 3: The Cloud That Couldn't Rain", page: "story3.html" },
+    { title: "Story 4: Milo the Moon Mouse", page: "story4.html" },
+    { title: "Story 5: Tilly the Turtle's Dream", page: "story5.html" },
+    { title: "Story 6: Nico and the Talking Tree", page: "story6.html" },
+    { title: "Story 7: The Pillow Who Snored", page: "story7.html" },
+    { title: "Story 8: Zara the Zebra's Stripes", page: "story8.html" },
+    { title: "Story 9: Leo's Lost Yawn", page: "story9.html" },
+    { title: "Story 10: The Dream Delivery Bird", page: "story10.html" }
+];
+
+const searchBar = document.getElementById('search-bar');
+const suggestions = document.getElementById('search-suggestions');
+
+searchBar.addEventListener('input', function() {
+    const query = this.value.trim().toLowerCase();
+    suggestions.innerHTML = '';
+    if (query.length === 0) {
+        suggestions.classList.remove('active');
+        return;
+    }
+    // Show titles that contain the query anywhere (case-insensitive)
+    const filtered = stories.filter(story => story.title.toLowerCase().includes(query));
+    if (filtered.length === 0) {
+        suggestions.classList.remove('active');
+        return;
+    }
+    filtered.forEach(story => {
+        const li = document.createElement('li');
+        li.textContent = story.title;
+        li.tabIndex = 0;
+        li.onclick = () => window.location.href = story.page;
+        li.onkeydown = (e) => { if (e.key === 'Enter') window.location.href = story.page; };
+        suggestions.appendChild(li);
+    });
+    suggestions.classList.add('active');
+});
+
+// Hide suggestions when clicking outside
+window.addEventListener('click', function(e) {
+    if (!document.querySelector('.search-container').contains(e.target)) {
+        suggestions.classList.remove('active');
+    }
+});
+</script>
+</body>
+</html>
